@@ -29,8 +29,8 @@ document.addEventListener("DOMContentLoaded", () => {
             headerSubtitle.innerText = 'System anomaly and overload events log.';
             clearAlertsBtn.style.display = window.aetherSimulation.state.alertHistory.length > 0 ? 'inline-block' : 'none';
         } else if (viewId === 'settings') {
-            headerTitle.innerText = 'System Configuration';
-            headerSubtitle.innerText = 'Manage hardware, thresholds, and alerts.';
+            headerTitle.innerText = 'Appliance Simulation';
+            headerSubtitle.innerText = 'Toggle physical appliances and simulate overload events.';
             clearAlertsBtn.style.display = 'none';
         }
     }
@@ -144,6 +144,19 @@ document.addEventListener("DOMContentLoaded", () => {
     clearAlertsBtn.addEventListener('click', () => window.aetherSimulation.clearAlertHistory());
 
     // ----------------------------------------------------------------
+    // 3.5 Physical Appliance Toggles
+    // ----------------------------------------------------------------
+    const toggleAc = document.getElementById('toggle-ac');
+    const toggleLight = document.getElementById('toggle-light');
+    const toggleWasher = document.getElementById('toggle-washer');
+    const toggleTv = document.getElementById('toggle-tv');
+
+    toggleAc.addEventListener('change', (e) => window.aetherSimulation.toggleAppliance('ac', e.target.checked));
+    toggleLight.addEventListener('change', (e) => window.aetherSimulation.toggleAppliance('light', e.target.checked));
+    toggleWasher.addEventListener('change', (e) => window.aetherSimulation.toggleAppliance('washer', e.target.checked));
+    toggleTv.addEventListener('change', (e) => window.aetherSimulation.toggleAppliance('tv', e.target.checked));
+
+    // ----------------------------------------------------------------
     // 4. State & DOM Updating Loop
     // ----------------------------------------------------------------
     // Fast Ticker Loop for Cost (Smoother than main tick)
@@ -164,6 +177,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (state.isAnomaly) {
             hvacStatus.innerHTML = `<span style="color: var(--accent); font-weight: 600;">⚠️ Anomaly/Overload Detected</span>`;
             hvacEl.style.color = 'var(--accent)';
+        } else if (!state.appliances.ac) {
+            hvacStatus.innerHTML = `Powered Off`;
+            hvacEl.style.color = '#94A3B8';
         } else {
             hvacStatus.innerHTML = `Running optimal cycles`;
             hvacEl.style.color = '';
@@ -171,6 +187,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const lightEl = document.getElementById('light-watts');
         lightEl.innerHTML = `${Math.round(state.lightWatts).toLocaleString()} <span class="stat-unit">W</span>`;
+        if (!state.appliances.light) {
+            lightEl.style.color = '#94A3B8';
+        } else {
+            lightEl.style.color = '';
+        }
 
         const scoreEl = document.getElementById('efficiency-score');
         scoreEl.innerHTML = `${state.efficiencyScore}<span class="stat-unit" style="color: rgba(255,255,255,0.7);">/100</span>`;
@@ -191,21 +212,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
         document.getElementById('wasted-energy').innerHTML = `${state.wastedEnergy.toFixed(2)} <span style="font-size: 1rem; color: #BE123C;">kWh</span>`;
 
-        // Settings Buttons
+        // Settings Buttons & Toggles Sync
+        toggleAc.checked = state.appliances.ac;
+        toggleLight.checked = state.appliances.light;
+        toggleWasher.checked = state.appliances.washer;
+        toggleTv.checked = state.appliances.tv;
+
         if (state.isAnomaly) {
             clearBtn.style.display = 'block';
             anomalyBtn.style.opacity = '0.5';
-            document.getElementById('hvac-status-dot').style.background = '#BE123C';
-            document.getElementById('hvac-status-dot').style.boxShadow = '0 0 0 4px rgba(190, 18, 60, 0.2)';
-            document.getElementById('hvac-status-text').style.color = '#BE123C';
-            document.getElementById('hvac-status-text').innerText = 'Overload Mode';
         } else {
             clearBtn.style.display = 'none';
             anomalyBtn.style.opacity = '1';
-            document.getElementById('hvac-status-dot').style.background = '#10B981';
-            document.getElementById('hvac-status-dot').style.boxShadow = '0 0 0 4px rgba(16, 185, 129, 0.2)';
-            document.getElementById('hvac-status-text').style.color = '#10B981';
-            document.getElementById('hvac-status-text').innerText = 'Online';
         }
 
         // Alerts List

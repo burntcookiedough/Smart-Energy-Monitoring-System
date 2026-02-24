@@ -128,26 +128,75 @@
     <main id="view-settings" class="view">
         <div class="settings-grid">
             <div class="card">
-                <h3>📡 Connected Hardware</h3>
+                <h3>🏠 Physical Appliances</h3>
+                <p class="subtitle" style="font-size: 0.9rem; margin-bottom: 1.5rem;">Toggle appliances to simulate live
+                    energy consumption.</p>
+
                 <div class="device-list">
+                    <!-- HVAC / AC -->
                     <div class="device-item">
-                        <div class="device-info">
-                            <h4>AetherIO Hub</h4>
-                            <p>Raspberry Pi Gateway (MQTT)</p>
+                        <div class="device-info" style="display: flex; align-items: center; gap: 1rem;">
+                            <div class="icon-box icon-hvac" style="width: 40px; height: 40px; font-size: 1.2rem;">❄️
+                            </div>
+                            <div>
+                                <h4>Air Conditioner</h4>
+                                <p>1,800W - 2,500W</p>
+                            </div>
                         </div>
-                        <div class="status-indicator">
-                            <div class="status-dot"></div> Online
-                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-ac" checked>
+                            <span class="slider"></span>
+                        </label>
                     </div>
+
+                    <!-- Lighting -->
                     <div class="device-item">
-                        <div class="device-info" id="hvac-device-info">
-                            <h4>HVAC Sensor Node</h4>
-                            <p>ESP32 (WebSocket)</p>
+                        <div class="device-info" style="display: flex; align-items: center; gap: 1rem;">
+                            <div class="icon-box icon-light" style="width: 40px; height: 40px; font-size: 1.2rem;">💡
+                            </div>
+                            <div>
+                                <h4>Lighting Grid</h4>
+                                <p>400W - 600W</p>
+                            </div>
                         </div>
-                        <div class="status-indicator">
-                            <div class="status-dot tooltip" id="hvac-status-dot"></div> <span
-                                id="hvac-status-text">Online</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-light" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- Washing Machine -->
+                    <div class="device-item">
+                        <div class="device-info" style="display: flex; align-items: center; gap: 1rem;">
+                            <div class="icon-box"
+                                style="width: 40px; height: 40px; font-size: 1.2rem; background: #F3F4F6; color: #475569;">
+                                🧺</div>
+                            <div>
+                                <h4>Washing Machine</h4>
+                                <p>500W (Active)</p>
+                            </div>
                         </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-washer">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- Entertainment System -->
+                    <div class="device-item">
+                        <div class="device-info" style="display: flex; align-items: center; gap: 1rem;">
+                            <div class="icon-box"
+                                style="width: 40px; height: 40px; font-size: 1.2rem; background: #F3F4F6; color: #475569;">
+                                📺</div>
+                            <div>
+                                <h4>Entertainment System</h4>
+                                <p>200W</p>
+                            </div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-tv" checked>
+                            <span class="slider"></span>
+                        </label>
                     </div>
                 </div>
             </div>
@@ -199,7 +248,7 @@
         <div class="nav-item active" data-view="dashboard">Dashboard</div>
         <div class="nav-item" data-view="analytics">Analytics</div>
         <div class="nav-item" data-view="alerts">Alerts</div>
-        <div class="nav-item" data-view="settings">Settings</div>
+        <div class="nav-item" data-view="settings">Simulation</div>
     </nav>
 
     <script src="simulation.js"></script>

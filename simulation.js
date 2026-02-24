@@ -8,12 +8,22 @@ class EnergySimulation {
             durationThreshold: 30
         };
 
-        // Local state (No localStorage for state anymore to fix race condition bugs!)
+        // Local state
         this.state = {
-            globalWatts: 2450,
-            hvacWatts: 1800,
-            lightWatts: 450,
-            otherWatts: 200,
+            // Appliance toggles
+            appliances: {
+                ac: true,
+                light: true,
+                washer: false,
+                tv: true
+            },
+
+            // Dynamic consumption
+            globalWatts: 0,
+            hvacWatts: 0,
+            lightWatts: 0,
+            otherWatts: 0,
+
             cost: 14.70,
             wastedEnergy: 0.0,
             efficiencyScore: 92,
@@ -42,15 +52,22 @@ class EnergySimulation {
     turnOffAnomaly() {
         if (!this.state.isAnomaly) return;
         this.state.isAnomaly = false;
-        this.state.hvacWatts = Math.floor(Math.random() * 500) + 1500;
+
+        // If the AC is explicitly turned off during the anomaly, don't bring it up immediately
+        this.state.hvacWatts = this.state.appliances.ac ? Math.floor(Math.random() * 500) + 1500 : 0;
+
         this.updateGlobal();
         this.broadcastEvent('anomaly_cleared');
     }
 
-    triggerAnomaly(message = "HVAC system exceeded the spike threshold. Current draw: 2,800W.") {
-        if (this.state.isAnomaly) return; // prevent duplicate
+    triggerAnomaly(message = "AC Overload. Continuous peak draw exceeded duration thresholds.") {
+        if (this.state.isAnomaly) return;
+
+        // Turn on AC if off
+        this.toggleAppliance('ac', true);
+
         this.state.isAnomaly = true;
-        this.state.hvacWatts = 2800;
+        this.state.hvacWatts = 3200;
         this.state.anomalyMessage = message;
         this.state.efficiencyScore = Math.max(0, this.state.efficiencyScore - 15);
         this.state.wastedEnergy += 0.5; // Bump wasted energy logic
@@ -59,7 +76,7 @@ class EnergySimulation {
             id: Date.now(),
             timestamp: new Date().toISOString(),
             message: message,
-            watts: 2800,
+            watts: 3200,
             type: 'overload'
         };
         this.state.alertHistory.unshift(newAlert);
@@ -69,19 +86,46 @@ class EnergySimulation {
         this.broadcastEvent('anomaly_detected');
     }
 
-    tick() {
+    toggleAppliance(appId, forcesState = null) {
+        if (forcesState !== null) {
+            this.state.appliances[appId] = forcesState;
+        } else {
+            this.state.appliances[appId] = !this.state.appliances[appId];
+        }
+
+        // If AC is turned off, clear anomaly
+        if (appId === 'ac' && !this.state.appliances.ac && this.state.isAnomaly) {
+            this.turnOffAnomaly();
+        }
+
+        this.tick(true); // Force an instant tick update
+    }
+
+    tick(forced = false) {
         if (this.state.isAnomaly) {
-            this.state.hvacWatts = 2800 + Math.floor(Math.random() * 50 - 25);
+            this.state.hvacWatts = 3200 + Math.floor(Math.random() * 100 - 50);
             this.state.wastedEnergy += 0.05;
         } else {
-            this.state.hvacWatts = 1800 + Math.floor(Math.random() * 200 - 100);
-            if (this.state.efficiencyScore < 98 && Math.random() > 0.7) {
+            if (this.state.appliances.ac) {
+                this.state.hvacWatts = 1800 + Math.floor(Math.random() * 200 - 100);
+            } else {
+                this.state.hvacWatts = 0; // Completely off
+            }
+            if (!forced && this.state.efficiencyScore < 98 && Math.random() > 0.7) {
                 this.state.efficiencyScore += 1;
             }
         }
 
-        this.state.lightWatts = 450 + Math.floor(Math.random() * 50 - 25);
-        this.state.otherWatts = 200 + Math.floor(Math.random() * 20 - 10);
+        // Calculate Light
+        this.state.lightWatts = this.state.appliances.light ? 450 + Math.floor(Math.random() * 50 - 25) : 0;
+
+        // Calculate Washer (Heavy when on)
+        const washerWatts = this.state.appliances.washer ? 500 + Math.floor(Math.random() * 40 - 20) : 0;
+
+        // Calculate TV
+        const tvWatts = this.state.appliances.tv ? 200 + Math.floor(Math.random() * 20 - 10) : 0;
+
+        this.state.otherWatts = washerWatts + tvWatts;
 
         this.updateGlobal();
 
