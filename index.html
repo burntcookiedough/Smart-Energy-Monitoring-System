@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Energy Monitoring</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #5EEAD4;
+            --secondary: #818CF8;
+            --accent: #FDA4AF;
+            --bg: #F8FAFC;
+            --text: #1E293B;
+            --card-bg: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            padding: 2rem 2rem 8rem 2rem;
+            /* Bottom padding for floating nav */
+            overflow-x: hidden;
+        }
+
+        header {
+            max-width: 1200px;
+            margin: 0 auto 3rem auto;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        p.subtitle {
+            font-size: 1.1rem;
+            color: #64748B;
+            font-weight: 400;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 28px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.04);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.08);
+        }
+
+        /* The Pulse Card */
+        .pulse-card {
+            grid-column: 1 / -1;
+            /* Spans full width */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #ffffff 0%, #f0fdfa 100%);
+            border: 2px solid rgba(94, 234, 212, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pulse-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(94, 234, 212, 0.15) 0%, transparent 60%);
+            animation: pulse-glow 4s infinite alternate ease-in-out;
+            z-index: 0;
+        }
+
+        @keyframes pulse-glow {
+            0% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+
+            100% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+        }
+
+        .pulse-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-value {
+            font-size: 3.5rem;
+            font-weight: 700;
+            letter-spacing: -0.05em;
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+        }
+
+        .stat-unit {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #64748B;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .icon-hvac {
+            background: #EEF2FF;
+            color: var(--secondary);
+        }
+
+        .icon-light {
+            background: #F0FDFA;
+            color: var(--primary);
+        }
+
+        .icon-alert {
+            background: #FFF1F2;
+            color: var(--accent);
+        }
+
+        /* Floating Navigation */
+        .floating-nav {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            border-radius: 50px;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            gap: 2rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            z-index: 1000;
+            border: 1px solid rgba(0, 0, 0, 0.02);
+        }
+
+        .nav-item {
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #64748B;
+            transition: color 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+        }
+
+        .nav-item.active {
+            color: var(--text);
+            background: #F1F5F9;
+        }
+
+        .nav-item:hover:not(.active) {
+            color: var(--secondary);
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="fade-element">
+        <h1>AetherIO Energy</h1>
+        <p class="subtitle">Intelligent monitoring. Sustainable living.</p>
+    </header>
+
+    <div class="dashboard-grid">
+        <div class="card pulse-card fade-element">
+            <div class="pulse-content">
+                <p class="subtitle">Live Global Consumption</p>
+                <div class="stat-value">
+                    <span id="global-watts">2,450</span><span class="stat-unit">W</span>
+                </div>
+            </div>
+            <div class="pulse-content" style="text-align: right;">
+                <p class="subtitle">Estimated Hourly Cost</p>
+                <div class="stat-value" style="color: var(--secondary);">
+                    <span class="stat-unit">₹</span><span id="cost-ticker">14.70</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card fade-element">
+            <div class="card-header">
+                <h3>HVAC System</h3>
+                <div class="icon-box icon-hvac">❄️</div>
+            </div>
+            <div class="stat-value" style="font-size: 2.5rem;">
+                1,800 <span class="stat-unit">W</span>
+            </div>
+            <p class="subtitle" style="margin-top: 1rem; font-size: 0.9rem;">Running optimal cycles</p>
+        </div>
+
+        <div class="card fade-element">
+            <div class="card-header">
+                <h3>Lighting Grid</h3>
+                <div class="icon-box icon-light">💡</div>
+            </div>
+            <div class="stat-value" style="font-size: 2.5rem;">
+                450 <span class="stat-unit">W</span>
+            </div>
+            <p class="subtitle" style="margin-top: 1rem; font-size: 0.9rem;">3 rooms active</p>
+        </div>
+
+        <div class="card fade-element" style="background: var(--text); color: white;">
+            <div class="card-header">
+                <h3 style="color: white;">Efficiency Score</h3>
+                <div class="icon-box" style="background: rgba(255,255,255,0.1); color: var(--primary);">🌱</div>
+            </div>
+            <div class="stat-value" style="font-size: 3rem; color: var(--primary);">
+                92<span class="stat-unit" style="color: rgba(255,255,255,0.7);">/100</span>
+            </div>
+            <p style="margin-top: 1rem; font-size: 0.9rem; color: rgba(255,255,255,0.7);">Excellent usage patterns
+                today.</p>
+        </div>
+    </div>
+
+    <nav class="floating-nav">
+        <a href="index.html" class="nav-item active" style="text-decoration: none;">Dashboard</a>
+        <a href="analytics.html" class="nav-item" style="text-decoration: none;">Analytics</a>
+        <a href="alerts.html" class="nav-item" style="text-decoration: none;">Alerts</a>
+        <a href="settings.html" class="nav-item" style="text-decoration: none;">Settings</a>
+    </nav>
+
+    <script src="simulation.js"></script>
+    <script>
+        // Staggered Entrance Animation
+        document.addEventListener("DOMContentLoaded", () => {
+            const elements = document.querySelectorAll('.fade-element');
+            elements.forEach((el, index) => {
+                setTimeout(() => {
+                    el.classList.add('visible');
+                }, 150 * index); // 150ms delay between each card
+            });
+
+            // Listen for engine updates
+            window.addEventListener('aetherio_event', (e) => {
+                const state = e.detail.state;
+                if (e.detail.type === 'state_updated') {
+                    // Update DOM elements safely with commas
+                    document.getElementById('global-watts').innerText = Math.round(state.globalWatts).toLocaleString();
+
+                    // Update HVAC
+                    const hvacEl = document.querySelector('.icon-hvac').parentElement.nextElementSibling;
+                    hvacEl.innerHTML = `${Math.round(state.hvacWatts).toLocaleString()} <span class="stat-unit">W</span>`;
+
+                    const hvacStatus = document.querySelector('.icon-hvac').parentElement.parentElement.querySelector('p.subtitle');
+                    if (state.isAnomaly) {
+                        hvacStatus.innerHTML = `<span style="color: var(--accent); font-weight: 600;">⚠️ Anomaly/Overload Detected</span>`;
+                        hvacEl.style.color = 'var(--accent)';
+                    } else {
+                        hvacStatus.innerHTML = `Running optimal cycles`;
+                        hvacEl.style.color = '';
+                    }
+
+                    // Update Lighting
+                    const lightEl = document.querySelector('.icon-light').parentElement.nextElementSibling;
+                    lightEl.innerHTML = `${Math.round(state.lightWatts).toLocaleString()} <span class="stat-unit">W</span>`;
+
+                    // Update Efficiency Score
+                    const scoreEl = document.querySelector('.icon-box[style*="🌱"]').parentElement.nextElementSibling;
+                    scoreEl.innerHTML = `${state.efficiencyScore}<span class="stat-unit" style="color: rgba(255,255,255,0.7);">/100</span>`;
+                }
+
+                // Anomaly Toast Handled globally or locally
+                if (e.detail.type === 'anomaly_detected') {
+                    showToast(state.anomalyMessage);
+                }
+            });
+
+            // Fast Ticker Loop for Cost (Smoother than 2s tick)
+            setInterval(() => {
+                const costElement = document.getElementById('cost-ticker');
+                costElement.innerText = window.aetherSimulation.state.cost.toFixed(2);
+            }, 100);
+
+            // Toast Function
+            function showToast(msg) {
+                // remove existing
+                let existing = document.getElementById('toast-container');
+                if (!existing) {
+                    existing = document.createElement('div');
+                    existing.id = 'toast-container';
+                    existing.style = 'position: fixed; top: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 2000;';
+                    document.body.appendChild(existing);
+                }
+
+                const toast = document.createElement('div');
+                toast.style = 'background: white; border-left: 4px solid var(--accent); border-radius: 12px; padding: 1rem 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: flex; align-items: flex-start; gap: 1rem; transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); width: 300px;';
+                toast.innerHTML = `
+                    <div style="background: #FFF1F2; color: #BE123C; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">⚠️</div>
+                    <div>
+                        <h4 style="font-size: 0.95rem; color: var(--text); margin-bottom: 0.2rem;">Anomaly Detected</h4>
+                        <p style="font-size: 0.85rem; color: #64748B; line-height: 1.4;">${msg}</p>
+                    </div>
+                `;
+                existing.appendChild(toast);
+                setTimeout(() => toast.style.transform = 'translateX(0)', 10);
+                setTimeout(() => {
+                    toast.style.transform = 'translateX(120%)';
+                    setTimeout(() => toast.remove(), 400);
+                }, 4000);
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AetherIO - Settings</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #5EEAD4;
+            --secondary: #818CF8;
+            --accent: #FDA4AF;
+            --bg: #F8FAFC;
+            --text: #1E293B;
+            --card-bg: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            padding: 2rem 2rem 8rem 2rem;
+            overflow-x: hidden;
+        }
+
+        header {
+            max-width: 1200px;
+            margin: 0 auto 3rem auto;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        p.subtitle {
+            font-size: 1.1rem;
+            color: #64748B;
+            font-weight: 400;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 28px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.04);
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        @keyframes slideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Device Status List */
+        .device-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .device-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: #F8FAFC;
+            border-radius: 16px;
+            border: 1px solid rgba(0, 0, 0, 0.02);
+        }
+
+        .device-info h4 {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .device-info p {
+            font-size: 0.85rem;
+            color: #64748B;
+            margin-top: 0.2rem;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #10B981;
+            /* Green for online */
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #10B981;
+            border-radius: 50%;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+        }
+
+        /* Form Elements */
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #64748B;
+            margin-bottom: 0.5rem;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--secondary);
+            cursor: pointer;
+        }
+
+        .range-value {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #64748B;
+            margin-top: 0.5rem;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 16px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--text);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #334155;
+            transform: translateY(-2px);
+        }
+
+        .btn-alert {
+            background: #FFF1F2;
+            color: #BE123C;
+            border: 1px solid rgba(253, 164, 175, 0.3);
+            margin-top: 1rem;
+        }
+
+        .btn-alert:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Toast Notification System */
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 2000;
+        }
+
+        .toast {
+            background: white;
+            border-left: 4px solid var(--accent);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            transform: translateX(120%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            width: 300px;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast-icon {
+            background: #FFF1F2;
+            color: #BE123C;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .toast-content h4 {
+            font-size: 0.95rem;
+            color: var(--text);
+            margin-bottom: 0.2rem;
+        }
+
+        .toast-content p {
+            font-size: 0.85rem;
+            color: #64748B;
+            line-height: 1.4;
+        }
+
+        /* Floating Navigation */
+        .floating-nav {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            border-radius: 50px;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            gap: 2rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            z-index: 1000;
+            border: 1px solid rgba(0, 0, 0, 0.02);
+        }
+
+        .nav-item {
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #64748B;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item.active {
+            color: var(--text);
+            background: #F1F5F9;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>System Configuration</h1>
+        <p class="subtitle">Manage hardware, thresholds, and alerts.</p>
+    </header>
+
+    <div class="settings-grid">
+        <div class="card" style="animation-delay: 0s;">
+            <h3>📡 Connected Hardware</h3>
+            <div class="device-list">
+                <div class="device-item">
+                    <div class="device-info">
+                        <h4>AetherIO Hub</h4>
+                        <p>Raspberry Pi Gateway (MQTT)</p>
+                    </div>
+                    <div class="status-indicator">
+                        <div class="status-dot"></div> Online
+                    </div>
+                </div>
+                <div class="device-item">
+                    <div class="device-info">
+                        <h4>HVAC Sensor Node</h4>
+                        <p>ESP32 (WebSocket)</p>
+                    </div>
+                    <div class="status-indicator">
+                        <div class="status-dot"></div> Online
+                    </div>
+                </div>
+                <div class="device-item" style="opacity: 0.6;">
+                    <div class="device-info">
+                        <h4>Lighting Node</h4>
+                        <p>ESP32 (Offline)</p>
+                    </div>
+                    <div class="status-indicator" style="color: #64748B;">
+                        <div class="status-dot" style="background: #94A3B8; box-shadow: none;"></div> Sleep
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="animation-delay: 0.15s;">
+            <h3>⚙️ Anomaly Logic</h3>
+            <p class="subtitle" style="font-size: 0.9rem; margin-bottom: 1.5rem;">Configure how the system detects power
+                waste.</p>
+
+            <div class="input-group">
+                <label>Spike Detection Threshold (+%)</label>
+                <input type="range" id="spike-threshold" min="10" max="100" value="40">
+                <div class="range-value">
+                    <span>Sensitive (10%)</span>
+                    <span id="spike-val" style="font-weight: 700; color: var(--secondary);">40%</span>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Continuous High-Load Duration (Minutes)</label>
+                <input type="range" id="duration-threshold" min="5" max="120" value="30">
+                <div class="range-value">
+                    <span>Short (5m)</span>
+                    <span id="dur-val" style="font-weight: 700; color: var(--secondary);">30 mins</span>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" id="save-thresholds-btn">Save Thresholds</button>
+        </div>
+
+        <div class="card" style="animation-delay: 0.3s;">
+            <h3>🔔 Notification Center</h3>
+            <p class="subtitle" style="font-size: 0.9rem; margin-bottom: 1.5rem;">Test how anomalies are routed to the
+                dashboard.</p>
+
+            <div style="background: #F8FAFC; padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(0,0,0,0.02);">
+                <p style="font-size: 0.9rem; color: #64748B; margin-bottom: 1rem;">Click below to trigger the anomaly
+                    detection simulation event.</p>
+                <button class="btn btn-alert" id="trigger-anomaly-btn">Simulate HVAC Overload</button>
+                <button class="btn" id="clear-anomaly-btn"
+                    style="background: #EEF2FF; color: var(--secondary); margin-top: 0.5rem; display: none;">Clear
+                    System Anomaly</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <nav class="floating-nav">
+        <a href="index.html" class="nav-item" style="text-decoration: none;">Dashboard</a>
+        <a href="analytics.html" class="nav-item" style="text-decoration: none;">Analytics</a>
+        <a href="alerts.html" class="nav-item" style="text-decoration: none;">Alerts</a>
+        <a href="settings.html" class="nav-item active" style="text-decoration: none;">Settings</a>
+    </nav>
+
+    <script src="simulation.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const spikeSlider = document.getElementById('spike-threshold');
+            const durSlider = document.getElementById('duration-threshold');
+            const spikeVal = document.getElementById('spike-val');
+            const durVal = document.getElementById('dur-val');
+
+            // Load initial settings
+            spikeSlider.value = window.aetherSimulation.settings.spikeThreshold || 40;
+            durSlider.value = window.aetherSimulation.settings.durationThreshold || 30;
+            spikeVal.innerText = spikeSlider.value + '%';
+            durVal.innerText = durSlider.value + ' mins';
+
+            spikeSlider.addEventListener('input', (e) => spikeVal.innerText = e.target.value + '%');
+            durSlider.addEventListener('input', (e) => durVal.innerText = e.target.value + ' mins');
+
+            document.getElementById('save-thresholds-btn').addEventListener('click', () => {
+                window.aetherSimulation.saveSettings({
+                    spikeThreshold: parseInt(spikeSlider.value),
+                    durationThreshold: parseInt(durSlider.value)
+                });
+
+                // Show a quick toast for confirmation
+                triggerToast('✅ Settings Saved', 'Anomaly detection thresholds have been updated.', '#10B981', '#D1FAE5');
+            });
+
+            const anomalyBtn = document.getElementById('trigger-anomaly-btn');
+            const clearBtn = document.getElementById('clear-anomaly-btn');
+
+            if (window.aetherSimulation.state.isAnomaly) {
+                clearBtn.style.display = 'block';
+                anomalyBtn.style.opacity = '0.5';
+            }
+
+            anomalyBtn.addEventListener('click', () => {
+                window.aetherSimulation.triggerAnomaly();
+            });
+
+            clearBtn.addEventListener('click', () => {
+                window.aetherSimulation.turnOffAnomaly();
+            });
+
+            window.addEventListener('aetherio_event', (e) => {
+                if (e.detail.type === 'anomaly_detected') {
+                    clearBtn.style.display = 'block';
+                    anomalyBtn.style.opacity = '0.5';
+                    triggerToast('⚠️ Anomaly Detected', e.detail.state.anomalyMessage, '#BE123C', '#FFF1F2');
+                } else if (e.detail.type === 'anomaly_cleared') {
+                    clearBtn.style.display = 'none';
+                    anomalyBtn.style.opacity = '1';
+                    triggerToast('✅ System Normal', 'HVAC overload resolved.', '#10B981', '#D1FAE5');
+                }
+            });
+
+            function triggerToast(title, message, color, bgColor) {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = 'toast';
+
+                toast.innerHTML = `
+                    <div class="toast-icon" style="background: ${bgColor}; color: ${color};">
+                        ${title.includes('⚠️') ? '⚠️' : '✅'}
+                    </div>
+                    <div class="toast-content">
+                        <h4 style="color: var(--text); padding-top: 5px;">${title.replace('⚠️', '').replace('✅', '').trim()}</h4>
+                        <p>${message}</p>
+                    </div>
+                `;
+
+                container.appendChild(toast);
+                setTimeout(() => toast.classList.add('show'), 10);
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 400);
+                }, 4000);
+            }
+        });
+    </script>
+</body>
+
+</html>
